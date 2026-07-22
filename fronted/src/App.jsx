@@ -1,13 +1,14 @@
-function App() {
+// import React from 'react'
+import { Route, Routes } from 'react-router-dom'
+import NavBar from './components/NavBar'
+const App = () => {
   return (
     <>
-      <div className="flex bg-gray-700 items-center justify-between p-4">
-        <nav>
-          <h1>To Do App</h1>
-        </nav>
-      </div>
+      <Routes>
+        <Route path='/' element={<NavBar />}/> 
+      </Routes>
     </>
-  );
+  )
 }
 
-export default App;
+export default App
