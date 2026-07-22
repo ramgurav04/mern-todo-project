@@ -1,15 +1,13 @@
 const { MongoClient } = require("mongodb");
 
-const url = "";
-const CollectionName = "";
-const dbname = "";
+const url = "mongodb+srv://ramgurav487_db_user:root@cluster0.tmoubjb.mongodb.net/?appName=Cluster0";
+export const CollectionName = "Tasks";
+const dbname = "mern-todo";
 
-const client = new MongoClient(url);
+export const client = new MongoClient(url);
 
-const connection = async () => {
-    const connect = await client.addListener();
+export const connection = async () => {
+    const connect = await client.connect();
     const db = connect.db(dbname);
     return await db;
 };
-
-module.exports = connection;
