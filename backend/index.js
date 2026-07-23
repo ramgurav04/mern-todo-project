@@ -3,7 +3,7 @@ import { connection, CollectionName } from "./dbconfig.js";
 const app = e();
 app.use(e.json());
 
-app.post("/add-task", async (req, res) => {
+app.post("/add", async (req, res) => {
   const db = await connection();
   const collection = await db.collection(CollectionName);
   const result = await collection.insertOne(req.body);
