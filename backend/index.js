@@ -1,9 +1,13 @@
 import e from "express";
 import { connection, CollectionName } from "./dbconfig.js";
-const app = e();
-app.use(e.json());
+import cors from "cors";
 
-app.post("/add", async (req, res) => {
+const app = e();
+
+app.use(e.json());
+app.use(cors());
+
+app.post("/add-task", async (req, res) => {
   const db = await connection();
   const collection = await db.collection(CollectionName);
   const result = await collection.insertOne(req.body);

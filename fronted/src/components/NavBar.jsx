@@ -1,27 +1,34 @@
-// import React from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+
+const linkClass = ({ isActive }) =>
+  isActive
+    ? "text-sky-600 font-medium"
+    : "text-slate-600 hover:text-slate-900";
 
 const NavBar = () => {
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-slate-700/60 bg-slate-900/95 backdrop-blur-sm shadow-lg shadow-slate-950/40">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
-        <Link
-          to="/"
-          className="text-xl font-semibold tracking-tight text-white transition hover:text-sky-300 sm:text-2xl"
-        >
-          To Do App
+    <nav className="border-b border-slate-200 bg-white">
+      <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
+        <Link to="/" className="text-lg font-semibold text-slate-900">
+          Todo App
         </Link>
-        <ul className="flex items-center gap-1 sm:gap-2">
+        <ul className="flex items-center gap-6 text-sm">
           <li>
-            <Link to={"/"}>Home</Link>
+            <NavLink to="/" end className={linkClass}>
+              Home
+            </NavLink>
           </li>
           <li>
-            <Link
+            <NavLink
               to="/add"
-              className="rounded-lg bg-sky-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-sky-400 sm:text-base"
+              className={({ isActive }) =>
+                isActive
+                  ? "rounded-md bg-sky-600 px-3 py-1.5 font-medium text-white"
+                  : "rounded-md bg-sky-600 px-3 py-1.5 font-medium text-white hover:bg-sky-700"
+              }
             >
               Add Task
-            </Link>
+            </NavLink>
           </li>
         </ul>
       </div>
