@@ -1,152 +1,67 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 
-const API_URL = "http://localhost:3000";
-
 const TaskList = () => {
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [deletingId, setDeletingId] = useState(null);
+  const [taskData, setTaskData] = useState([]);
 
   useEffect(() => {
-    fetchTasks();
+    getListData();
   }, []);
 
-  const fetchTasks = async () => {
-    setLoading(true);
-    setError("");
+  const getListData = async () => {
     try {
-      const res = await axios.get(`${API_URL}/tasks`);
-      if (res.data && res.data.success) {
-        setTasks(res.data.data || []);
-      } else {
-        setError(res.data?.message || "Failed to load tasks.");
+      const response = await axios.get("http://localhost:3000/tasks");
+      if (response.data && response.data.success) {
+        setTaskData(response.data.data);
       }
     } catch (err) {
       console.error("Error fetching tasks:", err);
-      setError(
-        err.code === "ERR_NETWORK"
-          ? "Cannot connect to backend server. Make sure node server is running on port 3000."
-          : err.message || "Failed to fetch tasks."
-      );
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!id) return;
-    if (!window.confirm("Are you sure you want to delete this task?")) return;
-    setDeletingId(id);
+  const deleteTask = async (id) => {
     try {
-      const res = await axios.delete(`${API_URL}/tasks/${id}`);
-      if (res.data && res.data.success) {
-        setTasks((prev) => prev.filter((task) => task._id !== id));
-      } else {
-        alert(res.data?.message || "Failed to delete task.");
+      const response = await axios.delete(`http://localhost:3000/tasks/${id}`);
+      if (response.data && response.data.success) {
+        getListData();
       }
     } catch (err) {
-      alert(err.message || "Error deleting task.");
-    } finally {
-      setDeletingId(null);
+      console.error("Error deleting task:", err);
     }
   };
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">Task List</h1>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={fetchTasks}
-            disabled={loading}
-            className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-          >
-            {loading ? "Refreshing..." : "Refresh"}
-          </button>
-          <Link
-            to="/add"
-            className="rounded-md bg-sky-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-sky-700"
-          >
-            + Add Task
-          </Link>
-        </div>
-      </div>
-
-      {error && (
-        <div className="mt-4 rounded-md bg-red-50 p-4 text-sm text-red-700 border border-red-200">
-          <p className="font-semibold">Connection Error</p>
-          <p className="mt-1">{error}</p>
-          <button
-            onClick={fetchTasks}
-            className="mt-2 rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-700"
-          >
-            Try Again
-          </button>
-        </div>
-      )}
-
-      {loading && !error && (
-        <div className="mt-8 flex justify-center py-8">
-          <div className="text-slate-500 text-sm font-medium animate-pulse">
-            Loading tasks from server...
-          </div>
-        </div>
-      )}
-
-      {!loading && !error && tasks.length === 0 && (
-        <div className="mt-8 rounded-lg border-2 border-dashed border-slate-200 p-8 text-center">
-          <p className="text-slate-500 font-medium">No tasks found.</p>
-          <p className="mt-1 text-sm text-slate-400">
-            Click "Add Task" to create your first task!
-          </p>
-          <Link
-            to="/add"
-            className="mt-4 inline-block rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700"
-          >
-            Create Task
-          </Link>
-        </div>
-      )}
-
-      {!loading && !error && tasks.length > 0 && (
-        <ul className="mt-6 space-y-3">
-          {tasks.map((task, idx) => (
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Task List</h1>
+      <ul className="space-y-3">
+        {taskData && taskData.length > 0 ? (
+          taskData.map((item, idx) => (
             <li
-              key={task._id || idx}
-              className="flex items-start justify-between rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md"
+              key={item._id || idx}
+              className="flex items-center justify-between p-4 border rounded-md shadow-sm bg-white"
             >
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-100 text-xs font-semibold text-sky-700">
-                    {idx + 1}
-                  </span>
-                  <h2 className="font-semibold text-slate-900">{task.title}</h2>
-                </div>
-                {task.description && (
-                  <p className="pl-8 text-sm text-slate-600 whitespace-pre-line">
-                    {task.description}
-                  </p>
+              <div>
+                <span className="font-semibold text-gray-700 mr-2">{idx + 1}.</span>
+                <span className="font-bold">{item.title}</span>
+                {item.description && (
+                  <p className="text-gray-600 text-sm ml-5">{item.description}</p>
                 )}
               </div>
-
-              {task._id && (
+              {item._id && (
                 <button
-                  onClick={() => handleDelete(task._id)}
-                  disabled={deletingId === task._id}
-                  className="rounded-md px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
-                  title="Delete task"
+                  onClick={() => deleteTask(item._id)}
+                  className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
                 >
-                  {deletingId === task._id ? "Deleting..." : "Delete"}
+                  Delete
                 </button>
               )}
             </li>
-          ))}
-        </ul>
-      )}
-    </main>
+          ))
+        ) : (
+          <p className="text-gray-500">No tasks found.</p>
+        )}
+      </ul>
+    </div>
   );
 };
 

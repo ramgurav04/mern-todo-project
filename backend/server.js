@@ -1,11 +1,11 @@
-import e from "express";
+import express from "express";
 import { connection, CollectionName } from "./dbconfig.js";
 import { ObjectId } from "mongodb";
 import cors from "cors";
 
-const app = e();
+const app = express();
 
-app.use(e.json());
+app.use(express.json());
 app.use(cors());
 
 app.post("/add-task", async (req, res) => {
@@ -13,7 +13,6 @@ app.post("/add-task", async (req, res) => {
     const db = await connection();
     const collection = db.collection(CollectionName);
     const result = await collection.insertOne(req.body);
-    console.log("Task added successfully:", result);
     return res.status(201).json({
       message: "Task added successfully",
       success: true,
@@ -33,23 +32,21 @@ app.get("/tasks", async (req, res) => {
     const db = await connection();
     const collection = db.collection(CollectionName);
     const result = await collection.find().toArray();
-    console.log("Tasks retrieved successfully:", result);
-    
     return res.status(200).json({
       message: "Tasks retrieved successfully",
       success: true,
-      data: result
+      data: result,
     });
   } catch (err) {
-    console.error("GET /tasks:", err);
+    console.error("GET /tasks error:", err);
     return res.status(500).json({
       message: err.message || "Server error",
-      success: false
+      success: false,
     });
   }
 });
 
-app.delete("/tasks/:id", async (req, res) => {
+const deleteTaskHandler = async (req, res) => {
   try {
     const { id } = req.params;
     const db = await connection();
@@ -61,42 +58,16 @@ app.delete("/tasks/:id", async (req, res) => {
       data: result,
     });
   } catch (err) {
-    console.error("DELETE /tasks/:id:", err);
+    console.error("DELETE task error:", err);
     return res.status(500).json({
       message: err.message || "Server error",
       success: false,
     });
   }
-});
+};
 
-app.put("/tasks/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, description } = req.body ?? {};
-    const db = await connection();
-    const collection = db.collection(CollectionName);
-    const result = await collection.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          title: String(title).trim(),
-          description: description ? String(description).trim() : "",
-        },
-      },
-    );
-    return res.status(200).json({
-      message: "Task updated successfully",
-      success: true,
-      data: result,
-    });
-  } catch (err) {
-    console.error("PUT /tasks/:id:", err);
-    return res.status(500).json({
-      message: err.message || "Server error",
-      success: false,
-    });
-  }
-});
+app.delete("/tasks/:id", deleteTaskHandler);
+app.delete("/delete/:id", deleteTaskHandler);
 
 app.get("/", (req, res) => {
   res.send("Home page");
