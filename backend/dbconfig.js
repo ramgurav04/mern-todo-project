@@ -7,10 +7,11 @@ const url = "mongodb+srv://ramgurav487_db_user:root@mern-todo.hbhcrns.mongodb.ne
 export const CollectionName = "2";
 const dbname = "mern";
 
-export const client = new MongoClient(url);
+export const client = new MongoClient(url, {
+  serverSelectionTimeoutMS: 10_000,
+});
 
 export const connection = async () => {
-  const connect = await client.connect();
-  const db = connect.db(dbname);
-  return await db;
+  await client.connect();
+  return client.db(dbname);
 };

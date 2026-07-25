@@ -30,6 +30,18 @@ const NavBar = () => {
               Add Task
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/tasks"
+              className={({ isActive }) =>
+                isActive
+                  ? "rounded-md bg-sky-600 px-3 py-1.5 font-medium text-white"
+                  : "rounded-md bg-sky-600 px-3 py-1.5 font-medium text-white hover:bg-sky-700"
+              }
+            >
+              Tasks
+            </NavLink>
+          </li>
         </ul>
       </div>
     </nav>

@@ -1,17 +1,37 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { useState } from "react";
 
 const TaskList = () => {
+  const [taskData, setTaskData] = useState();
+
+  useEffect(() => {
+    getListData();
+  }, []);
+
+  const getListData = async () => {
+    let list = await fetch("http://localhost:3000/tasks");
+    list = await list.json();
+    console.log(list.data);
+
+    if (list.success) setTaskData(list.data);
+  };
+
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-2xl font-semibold text-slate-900">Tasks</h1>
-      <p className="mt-2 text-slate-600">You have no tasks yet.</p>
-      <Link
-        to="/add"
-        className="mt-6 inline-block rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700"
-      >
-        Add your first task
-      </Link>
-    </main>
+    <>
+      <ul>
+        
+        {taskData &&
+          taskData.map((item, idx) => (
+             <>
+              <div key={idx}>
+                <li>{idx+1}</li>
+              <li>{item.title}</li>
+              <li>{item.description}</li>
+              </div>
+            </>
+          ))}
+      </ul>
+    </>
   );
 };
 
