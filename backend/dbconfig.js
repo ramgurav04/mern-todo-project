@@ -11,7 +11,12 @@ export const client = new MongoClient(url, {
   serverSelectionTimeoutMS: 10_000,
 });
 
+let dbInstance = null;
+
 export const connection = async () => {
-  await client.connect();
-  return client.db(dbname);
+  if (!dbInstance) {
+    await client.connect();
+    dbInstance = client.db(dbname);
+  }
+  return dbInstance;
 };

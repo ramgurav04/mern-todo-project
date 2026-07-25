@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
+import axios from "axios";
 const API_URL = "http://localhost:3000";
 
 const AddTask = () => {
@@ -14,38 +14,25 @@ const AddTask = () => {
     setSaving(true);
 
     try {
-      const res = await fetch(`${API_URL}/add-task`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(taskData),
-      });
+      const res = await axios.post(`${API_URL}/add-task`, taskData);
 
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        throw new Error("Server returned an invalid response");
-      }
-
-      if (!res.ok) {
+      if (res.data && res.data.success) {
+        setStatus({ type: "success", text: res.data.message || "Task added successfully" });
+        setTaskData({ title: "", description: "" });
+      } else {
         setStatus({
           type: "error",
-          text: data.message || `Request failed (${res.status})`,
+          text: res.data?.message || "Failed to add task",
         });
-        return;
       }
-
-      setStatus({ type: "success", text: data.message });
-      setTaskData({ title: "", description: "" });
     } catch (err) {
       setStatus({
         type: "error",
         text:
-          err.message === "Failed to fetch"
+          err.response?.data?.message ||
+          (err.code === "ERR_NETWORK"
             ? "Cannot reach the server. Start the backend (npm start in backend folder, port 3000)."
-            : err.message || "Something went wrong",
+            : err.message || "Something went wrong"),
       });
     } finally {
       setSaving(false);
