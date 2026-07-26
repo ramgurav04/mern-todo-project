@@ -69,6 +69,24 @@ const deleteTaskHandler = async (req, res) => {
 app.delete("/tasks/:id", deleteTaskHandler);
 app.delete("/delete/:id", deleteTaskHandler);
 
+// app.put("/update/:id", async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const db = await connection();
+//     const collection = db.collection(CollectionName);
+//     const result = await collection.updateOne(
+//       { _id: new ObjectId(id) },
+//       { $set: req.body }
+//     );
+//   }catch (err) {
+//     console.error("GET /tasks error:", err);
+//     return res.status(500).json({
+//       message: err.message || "Server error",
+//       success: false,
+//     });
+//   }
+// })
+
 app.get("/", (req, res) => {
   res.send("Home page");
 });
