@@ -69,23 +69,27 @@ const deleteTaskHandler = async (req, res) => {
 app.delete("/tasks/:id", deleteTaskHandler);
 app.delete("/delete/:id", deleteTaskHandler);
 
-// app.put("/update/:id", async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const db = await connection();
-//     const collection = db.collection(CollectionName);
-//     const result = await collection.updateOne(
-//       { _id: new ObjectId(id) },
-//       { $set: req.body }
-//     );
-//   }catch (err) {
-//     console.error("GET /tasks error:", err);
-//     return res.status(500).json({
-//       message: err.message || "Server error",
-//       success: false,
-//     });
-//   }
-// })
+app.put("/update/:id", async (req, res) => {
+  try {
+    const db = await connection();
+    const collection = db.collection(CollectionName);
+    const result = await collection.updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: req.body }
+    );
+    return res.status(200).json({
+      message: "Task updated successfully",
+      success: true,
+      data: result,
+    });
+  } catch (err) {
+    console.error("PUT /update/:id error:", err);
+    return res.status(500).json({
+      message: err.message || "Failed to update task",
+      success: false,
+    });
+  }
+})
 
 app.get("/", (req, res) => {
   res.send("Home page");

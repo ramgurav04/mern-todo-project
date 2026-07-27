@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const TaskList = () => {
   const [taskData, setTaskData] = useState([]);
@@ -63,12 +64,7 @@ const TaskList = () => {
           <div className="col-span-3 flex justify-end gap-2">
             {item._id && (
               <>
-                <button
-                  onClick={() => updateTask(item._id)}
-                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                >
-                  Update
-                </button>
+               <Link to={"update/"+item._id} >Update</Link>
                 <button
                   onClick={() => deleteTask(item._id)}
                   className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
