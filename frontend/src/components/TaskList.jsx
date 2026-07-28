@@ -31,10 +31,6 @@ const TaskList = () => {
     }
   };
 
-  const updateTask = async (id) => {
-    
-    console.log("Update task with ID:", id);
-  }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
