@@ -2,7 +2,8 @@ import { Route, Routes } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import AddTask from "./components/AddTask";
 import TaskList from "./components/TaskList";
-import UpdateTask from "./components/UpdateTask.jsx";
+import UpdateTask from "./components/UpdateTask";
+
 
 const App = () => {
   return (
