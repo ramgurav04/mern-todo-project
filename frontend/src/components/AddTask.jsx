@@ -1,41 +1,18 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+
 const API_URL = "http://localhost:3000";
 
 const AddTask = () => {
   const [taskData, setTaskData] = useState({ title: "", description: "" });
-  const [status, setStatus] = useState({ type: "", text: "" });
-  const [saving, setSaving] = useState(false);
+  const navigate = useNavigate();
 
   const handleAddTask = async (e) => {
     e.preventDefault();
-    setStatus({ type: "", text: "" });
-    setSaving(true);
-
-    try {
-      const res = await axios.post(`${API_URL}/add-task`, taskData);
-
-      if (res.data && res.data.success) {
-        setStatus({ type: "success", text: res.data.message || "Task added successfully" });
-        setTaskData({ title: "", description: "" });
-      } else {
-        setStatus({
-          type: "error",
-          text: res.data?.message || "Failed to add task",
-        });
-      }
-    } catch (err) {
-      setStatus({
-        type: "error",
-        text:
-          err.response?.data?.message ||
-          (err.code === "ERR_NETWORK"
-            ? "Cannot reach the server. Start the backend (npm start in backend folder, port 3000)."
-            : err.message || "Something went wrong"),
-      });
-    } finally {
-      setSaving(false);
+    const res = await axios.post(`${API_URL}/add-task`, taskData);
+    if (res.data && res.data.success) {
+      navigate("/");
     }
   };
 
@@ -46,19 +23,6 @@ const AddTask = () => {
       </Link>
 
       <h1 className="mt-4 text-2xl font-semibold text-slate-900">Add task</h1>
-
-      {status.text && (
-        <p
-          className={`mt-4 rounded-md px-3 py-2 text-sm ${
-            status.type === "success"
-              ? "bg-green-50 text-green-800"
-              : "bg-red-50 text-red-800"
-          }`}
-          role="alert"
-        >
-          {status.text}
-        </p>
-      )}
 
       <form className="mt-6 max-w-lg space-y-4" onSubmit={handleAddTask}>
         <div>
@@ -102,10 +66,9 @@ const AddTask = () => {
         </div>
         <button
           type="submit"
-          disabled={saving}
-          className="rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700 disabled:opacity-60"
+          className="rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700"
         >
-          {saving ? "Saving…" : "Save"}
+          Save
         </button>
       </form>
     </main>
