@@ -2,6 +2,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const UpdateTask = () => {
   const [taskData, setTaskData] = useState({ title: "", description: "" });
   const navigate = useNavigate();
@@ -12,17 +14,25 @@ const UpdateTask = () => {
   }, [id]);
 
   const getTask = async () => {
-    const res = await axios.get(`http://localhost:3000/task/${id}`);
-    if (res.data && res.data.success && res.data.data) {
-      setTaskData(res.data.data);
+    try {
+      const res = await axios.get(`${API_URL}/task/${id}`);
+      if (res.data && res.data.success && res.data.data) {
+        setTaskData(res.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching task:", error);
     }
   };
 
   const handleUpdateTask = async (e) => {
     e.preventDefault();
-    const res = await axios.put(`http://localhost:3000/update/${id}`, taskData);
-    if (res.data && res.data.success) {
-      navigate("/");
+    try {
+      const res = await axios.put(`${API_URL}/update/${id}`, taskData);
+      if (res.data && res.data.success) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
     }
   };
 

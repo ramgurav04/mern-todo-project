@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const TaskList = () => {
   const [taskData, setTaskData] = useState([]);
   const [selectedTask, setSelectedTask] = useState([]);
@@ -11,29 +13,41 @@ const TaskList = () => {
   }, []);
 
   const getListData = async () => {
-    const response = await axios.get("http://localhost:3000/tasks");
-    if (response.data && response.data.success) {
-      setTaskData(response.data.data);
+    try {
+      const response = await axios.get(`${API_URL}/tasks`);
+      if (response.data && response.data.success) {
+        setTaskData(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
     }
   };
 
   const deleteTask = async (id) => {
-    const response = await axios.delete(`http://localhost:3000/tasks/${id}`);
-    if (response.data && response.data.success) {
-      setSelectedTask((prev) => prev.filter((itemId) => itemId !== id));
-      getListData();
+    try {
+      const response = await axios.delete(`${API_URL}/tasks/${id}`);
+      if (response.data && response.data.success) {
+        setSelectedTask((prev) => prev.filter((itemId) => itemId !== id));
+        getListData();
+      }
+    } catch (error) {
+      console.error("Error deleting task:", error);
     }
   };
 
   const deleteSelectedTasks = async () => {
     if (selectedTask.length === 0) return;
-    const response = await axios.post("http://localhost:3000/delete-tasks", {
+    try {
+      const response = await axios.post(`${API_URL}/delete-tasks`, {
         ids: selectedTask,
       });
       if (response.data && response.data.success) {
         setSelectedTask([]);
         getListData();
       }
+    } catch (error) {
+      console.error("Error deleting selected tasks:", error);
+    }
   };
 
   const selectall = (e) => {

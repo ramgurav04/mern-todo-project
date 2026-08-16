@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const AddTask = () => {
   const [taskData, setTaskData] = useState({ title: "", description: "" });
@@ -10,9 +10,13 @@ const AddTask = () => {
 
   const handleAddTask = async (e) => {
     e.preventDefault();
-    const res = await axios.post(`${API_URL}/add-task`, taskData);
-    if (res.data && res.data.success) {
-      navigate("/");
+    try {
+      const res = await axios.post(`${API_URL}/add-task`, taskData);
+      if (res.data && res.data.success) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error adding task:", error);
     }
   };
 
