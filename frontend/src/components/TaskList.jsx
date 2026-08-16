@@ -27,17 +27,13 @@ const TaskList = () => {
 
   const deleteSelectedTasks = async () => {
     if (selectedTask.length === 0) return;
-    try {
-      const response = await axios.post("http://localhost:3000/delete-tasks", {
+    const response = await axios.post("http://localhost:3000/delete-tasks", {
         ids: selectedTask,
       });
       if (response.data && response.data.success) {
         setSelectedTask([]);
         getListData();
       }
-    } catch (error) {
-      console.error("Error deleting selected tasks:", error);
-    }
   };
 
   const selectall = (e) => {
@@ -76,7 +72,9 @@ const TaskList = () => {
         <div className="col-span-1">
           <input
             onChange={selectall}
-            checked={taskData.length > 0 && selectedTask.length === taskData.length}
+            checked={
+              taskData.length > 0 && selectedTask.length === taskData.length
+            }
             type="checkbox"
           />
         </div>

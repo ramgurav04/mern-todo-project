@@ -32,14 +32,26 @@ const NavBar = () => {
           </li>
           <li>
             <NavLink
-              to="/tasks"
+              to="/signup"
               className={({ isActive }) =>
                 isActive
                   ? "rounded-md bg-sky-600 px-3 py-1.5 font-medium text-white"
                   : "rounded-md bg-sky-600 px-3 py-1.5 font-medium text-white hover:bg-sky-700"
               }
             >
-              Tasks
+              SignUp
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/login"
+              className={({ isActive }) =>
+                isActive
+                  ? "rounded-md bg-sky-600 px-3 py-1.5 font-medium text-white"
+                  : "rounded-md bg-sky-600 px-3 py-1.5 font-medium text-white hover:bg-sky-700"
+              }
+            >
+              Login
             </NavLink>
           </li>
         </ul>
