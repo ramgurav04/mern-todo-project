@@ -8,13 +8,18 @@ const TaskList = () => {
   const [taskData, setTaskData] = useState([]);
   const [selectedTask, setSelectedTask] = useState([]);
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  };
+
   useEffect(() => {
     getListData();
   }, []);
 
   const getListData = async () => {
     try {
-      const response = await axios.get(`${API_URL}/tasks`);
+      const response = await axios.get(`${API_URL}/tasks`, getAuthHeaders());
       if (response.data && response.data.success) {
         setTaskData(response.data.data);
       }
@@ -25,7 +30,7 @@ const TaskList = () => {
 
   const deleteTask = async (id) => {
     try {
-      const response = await axios.delete(`${API_URL}/tasks/${id}`);
+      const response = await axios.delete(`${API_URL}/tasks/${id}`, getAuthHeaders());
       if (response.data && response.data.success) {
         setSelectedTask((prev) => prev.filter((itemId) => itemId !== id));
         getListData();
@@ -38,9 +43,11 @@ const TaskList = () => {
   const deleteSelectedTasks = async () => {
     if (selectedTask.length === 0) return;
     try {
-      const response = await axios.post(`${API_URL}/delete-tasks`, {
-        ids: selectedTask,
-      });
+      const response = await axios.post(
+        `${API_URL}/delete-tasks`,
+        { ids: selectedTask },
+        getAuthHeaders()
+      );
       if (response.data && response.data.success) {
         setSelectedTask([]);
         getListData();

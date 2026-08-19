@@ -11,7 +11,9 @@ const AddTask = () => {
   const handleAddTask = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${API_URL}/add-task`, taskData);
+      const token = localStorage.getItem("token");
+      const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+      const res = await axios.post(`${API_URL}/add-task`, taskData, config);
       if (res.data && res.data.success) {
         navigate("/");
       }

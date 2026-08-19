@@ -9,13 +9,18 @@ const UpdateTask = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const getAuthConfig = () => {
+    const token = localStorage.getItem("token");
+    return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  };
+
   useEffect(() => {
     getTask();
   }, [id]);
 
   const getTask = async () => {
     try {
-      const res = await axios.get(`${API_URL}/task/${id}`);
+      const res = await axios.get(`${API_URL}/task/${id}`, getAuthConfig());
       if (res.data && res.data.success && res.data.data) {
         setTaskData(res.data.data);
       }
@@ -27,7 +32,11 @@ const UpdateTask = () => {
   const handleUpdateTask = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.put(`${API_URL}/update/${id}`, taskData);
+      const res = await axios.put(
+        `${API_URL}/update/${id}`,
+        taskData,
+        getAuthConfig()
+      );
       if (res.data && res.data.success) {
         navigate("/");
       }

@@ -3,13 +3,82 @@ import express from "express";
 import { connection, CollectionName } from "./dbconfig.js";
 import { ObjectId } from "mongodb";
 import cors from "cors";
+import jwt from "jsonwebtoken";
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-app.post("/add-task", async (req, res) => {
+const JWT_SECRET = process.env.JWT_SECRET || "secretkey123";
+
+// Middleware to verify JWT Token
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ success: false, message: "Access token required" });
+  }
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ success: false, message: "Invalid or expired token" });
+    }
+    req.user = user;
+    next();
+  });
+};
+
+// Signup route
+app.post("/signup", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Email and password are required" });
+    }
+    const db = await connection();
+    const usersCollection = db.collection("users");
+    const existingUser = await usersCollection.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: "User already exists" });
+    }
+    const result = await usersCollection.insertOne({ name, email, password });
+    const token = jwt.sign({ email, id: result.insertedId }, JWT_SECRET, { expiresIn: "1h" });
+    return res.status(201).json({
+      message: "Signup successful",
+      success: true,
+      token,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Login route
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Email and password are required" });
+    }
+    const db = await connection();
+    const usersCollection = db.collection("users");
+    const user = await usersCollection.findOne({ email, password });
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Invalid email or password" });
+    }
+    const token = jwt.sign({ email: user.email, id: user._id }, JWT_SECRET, { expiresIn: "1h" });
+    return res.status(200).json({
+      message: "Login successful",
+      success: true,
+      token,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Protected Task Routes
+app.post("/add-task", verifyToken, async (req, res) => {
   try {
     const db = await connection();
     const collection = db.collection(CollectionName);
@@ -24,7 +93,7 @@ app.post("/add-task", async (req, res) => {
   }
 });
 
-app.get("/tasks", async (req, res) => {
+app.get("/tasks", verifyToken, async (req, res) => {
   try {
     const db = await connection();
     const collection = db.collection(CollectionName);
@@ -39,7 +108,7 @@ app.get("/tasks", async (req, res) => {
   }
 });
 
-app.get("/task/:id", async (req, res) => {
+app.get("/task/:id", verifyToken, async (req, res) => {
   try {
     if (!ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ success: false, message: "Invalid task ID" });
@@ -60,7 +129,7 @@ app.get("/task/:id", async (req, res) => {
   }
 });
 
-app.put("/update/:id", async (req, res) => {
+app.put("/update/:id", verifyToken, async (req, res) => {
   try {
     if (!ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ success: false, message: "Invalid task ID" });
@@ -82,7 +151,7 @@ app.put("/update/:id", async (req, res) => {
   }
 });
 
-app.delete("/tasks/:id", async (req, res) => {
+app.delete("/tasks/:id", verifyToken, async (req, res) => {
   try {
     if (!ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ success: false, message: "Invalid task ID" });
@@ -100,7 +169,7 @@ app.delete("/tasks/:id", async (req, res) => {
   }
 });
 
-app.post("/delete-tasks", async (req, res) => {
+app.post("/delete-tasks", verifyToken, async (req, res) => {
   try {
     const db = await connection();
     const collection = db.collection(CollectionName);
