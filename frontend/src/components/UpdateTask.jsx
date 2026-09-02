@@ -15,19 +15,18 @@ const UpdateTask = () => {
   };
 
   useEffect(() => {
+    const getTask = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/task/${id}`, getAuthConfig());
+        if (res.data && res.data.success && res.data.data) {
+          setTaskData(res.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching task:", error);
+      }
+    };
     getTask();
   }, [id]);
-
-  const getTask = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/task/${id}`, getAuthConfig());
-      if (res.data && res.data.success && res.data.data) {
-        setTaskData(res.data.data);
-      }
-    } catch (error) {
-      console.error("Error fetching task:", error);
-    }
-  };
 
   const handleUpdateTask = async (e) => {
     e.preventDefault();

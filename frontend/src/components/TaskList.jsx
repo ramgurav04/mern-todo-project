@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
@@ -13,11 +13,7 @@ const TaskList = () => {
     return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
   };
 
-  useEffect(() => {
-    getListData();
-  }, []);
-
-  const getListData = async () => {
+  const getListData = useCallback(async () => {
     try {
       const response = await axios.get(`${API_URL}/tasks`, getAuthHeaders());
       if (response.data && response.data.success) {
@@ -26,7 +22,12 @@ const TaskList = () => {
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    getListData();
+  }, [getListData]);
 
   const deleteTask = async (id) => {
     try {

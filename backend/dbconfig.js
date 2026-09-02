@@ -5,7 +5,7 @@ import { MongoClient } from "mongodb";
 
 const url = process.env.DB_URL;
 
-export const CollectionName = "2";
+export const CollectionName = "tasks";
 const db_name = "mern";
 
 export const client = new MongoClient(url, {
