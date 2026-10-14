@@ -1,108 +1,214 @@
-# MERN Todo Application
+# ✅ MERN Todo App
 
-A full-stack Todo application built with the **MERN** stack (**M**ongoDB, **E**xpress.js, **R**eact, **N**ode.js).
+A full-stack **Todo application** built with the **MERN** stack (MongoDB, Express, React, Node.js). Users can sign up, log in, and manage their personal tasks — add, update, delete, and bulk-delete. Secured with **JWT authentication**.
 
-## 🚀 Features
+---
 
-- **View Tasks**: Fetch and display all active tasks from MongoDB.
-- **Add Task**: Create new tasks with title and optional description.
-- **Delete Task**: Remove completed or unwanted tasks from the database.
-- **Responsive UI**: Clean user interface built with React, React Router, and Tailwind CSS.
-- **RESTful API**: Clean backend architecture using Express and MongoDB Native Driver.
+## 🚀 Live Demo
+
+> _Fill in after deploying to Vercel_
+
+| Service  | URL |
+|----------|-----|
+| Frontend | `https://your-frontend.vercel.app` |
+| Backend  | `https://your-backend.vercel.app`  |
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **Framework**: React (Vite)
-- **HTTP Client**: Axios
-- **Routing**: React Router DOM (`v7`)
-- **Styling**: Tailwind CSS
+| Layer     | Technology |
+|-----------|------------|
+| Frontend  | React 19, Vite, Tailwind CSS v4, React Router v7 |
+| Backend   | Node.js, Express 5, MongoDB (native driver) |
+| Auth      | JSON Web Tokens (JWT) |
+| Database  | MongoDB Atlas |
+| Hosting   | Vercel (frontend + backend as separate projects) |
 
-### Backend
-- **Runtime**: Node.js
-- **Server Framework**: Express.js (`v5`)
-- **Database**: MongoDB Atlas (`mongodb` Native Driver)
-- **CORS Middleware**: `cors`
+---
+
+## ✨ Features
+
+- 🔐 **User Auth** — Signup & Login with JWT (token stored in `localStorage`)
+- 📋 **Task CRUD** — Create, read, update, delete tasks
+- ☑️ **Bulk Delete** — Select multiple tasks and delete in one click
+- 🔒 **Protected Routes** — All task operations require a valid JWT
+- 📱 **Responsive UI** — Clean Tailwind CSS layout that works on all screen sizes
 
 ---
 
 ## 📁 Project Structure
 
-```text
+```
 mern-todo-app/
-├── backend/
-│   ├── dbconfig.js       # MongoDB Atlas configuration & connection
-│   ├── server.js         # Express server & API routes
-│   └── package.json      # Backend dependencies & scripts
-├── fronted/
-│   ├── src/
-│   │   ├── assets/       # Static assets
-│   │   ├── components/   # React components (NavBar, TaskList, AddTask)
-│   │   ├── App.jsx       # Main app component & routes
-│   │   ├── main.jsx      # Entry point & BrowserRouter wrapper
-│   │   └── index.css     # Global styles & Tailwind import
-│   ├── package.json      # Frontend dependencies & scripts
-│   └── vite.config.js    # Vite configuration
-└── README.md
+├── backend/                  # Express API (deploy as separate Vercel project)
+│   ├── controllers/
+│   │   └── taskcontroller.js # add_task, signup handlers
+│   ├── middleware/
+│   │   └── auth.js           # JWT verifyToken middleware
+│   ├── routes/
+│   │   └── taskroutes.js     # /signup, /add-task routes
+│   ├── dbconfig.js           # MongoDB connection (singleton)
+│   ├── server.js             # Express app entry point
+│   ├── vercel.json           # Vercel serverless config
+│   ├── .env.example          # Required environment variables
+│   └── package.json
+│
+└── frontend/                 # React + Vite app (deploy as separate Vercel project)
+    ├── src/
+    │   ├── components/
+    │   │   ├── AddTask.jsx
+    │   │   ├── Login.jsx
+    │   │   ├── NavBar.jsx
+    │   │   ├── SignUp.jsx
+    │   │   ├── TaskList.jsx
+    │   │   └── UpdateTask.jsx
+    │   ├── App.jsx
+    │   └── main.jsx
+    ├── vercel.json           # SPA rewrite config (React Router support)
+    ├── .env.example          # Required environment variables
+    └── package.json
 ```
 
 ---
 
-## 🔌 API Endpoints
+## ⚡ API Endpoints
 
-| Method | Endpoint | Description | Request Body |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/` | Home page health check | None |
-| `GET` | `/tasks` | Get all tasks | None |
-| `POST` | `/add-task` | Add a new task | `{ "title": "string", "description": "string" }` |
-| `DELETE` | `/tasks/:id` | Delete task by ID | None |
+All task routes require `Authorization: Bearer <token>` header.
 
----
-
-## ⚙️ Getting Started
-
-### 1. Prerequisites
-Make sure you have installed:
-- [Node.js](https://nodejs.org/) (v16+ recommended)
-- [npm](https://www.npmjs.com/)
+| Method | Endpoint        | Auth | Description              |
+|--------|-----------------|------|--------------------------|
+| POST   | `/signup`       | ❌   | Create a new account     |
+| POST   | `/login`        | ❌   | Login, get JWT token     |
+| GET    | `/tasks`        | ✅   | Get all tasks for user   |
+| GET    | `/task/:id`     | ✅   | Get a single task        |
+| POST   | `/add-task`     | ✅   | Create a new task        |
+| PUT    | `/update/:id`   | ✅   | Update a task            |
+| DELETE | `/tasks/:id`    | ✅   | Delete a single task     |
+| POST   | `/delete-tasks` | ✅   | Bulk delete tasks by IDs |
 
 ---
 
-### 2. Setup Backend
+## 🖥️ Local Development
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) v18+
+- A [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) cluster (free tier works)
+
+### 1. Clone the repo
 
 ```bash
-# Navigate to backend directory
+git clone https://github.com/your-username/mern-todo-app.git
+cd mern-todo-app
+```
+
+### 2. Set up the Backend
+
+```bash
 cd backend
-
-# Install dependencies
 npm install
 
-# Start backend server
-npm start
+# Copy the example env file and fill in your values
+cp .env.example .env
 ```
-> The backend server will start on **`http://localhost:3000`**.
 
----
+Edit `backend/.env`:
 
-### 3. Setup Frontend
+```env
+DB_URL=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/mern?retryWrites=true&w=majority
+JWT_SECRET=your_super_secret_key
+PORT=3000
+FRONTEND_URL=http://localhost:5173
+```
 
-Open a new terminal window:
+Start the backend:
 
 ```bash
-# Navigate to frontend directory
-cd fronted
+npm run dev   # uses nodemon (hot reload)
+# or
+npm start     # plain node
+```
 
-# Install dependencies
+Backend runs at **http://localhost:3000**
+
+### 3. Set up the Frontend
+
+```bash
+cd ../frontend
 npm install
 
-# Start Vite dev server
+# Copy the example env file
+cp .env.example .env
+```
+
+Edit `frontend/.env`:
+
+```env
+VITE_API_URL=http://localhost:3000
+```
+
+Start the frontend:
+
+```bash
 npm run dev
 ```
-> The frontend application will run on **`http://localhost:5173`** (or port specified by Vite).
+
+Frontend runs at **http://localhost:5173**
 
 ---
 
-## 📝 License
-This project is licensed under the ISC License.
+## ☁️ Deploy to Vercel
+
+This app is split into two independent Vercel projects.
+
+### Deploy the Backend
+
+1. Push the repo to GitHub.
+2. Go to [vercel.com](https://vercel.com) → **Add New Project**.
+3. Import your repo and set the **Root Directory** to `backend`.
+4. Add the following **Environment Variables** in the Vercel dashboard:
+
+   | Variable       | Value |
+   |----------------|-------|
+   | `DB_URL`       | Your MongoDB Atlas connection string |
+   | `JWT_SECRET`   | A long random secret string |
+   | `FRONTEND_URL` | Your frontend Vercel URL (set after deploying frontend) |
+
+5. Click **Deploy**. Note the deployed URL (e.g. `https://mern-todo-backend.vercel.app`).
+
+### Deploy the Frontend
+
+1. Go to [vercel.com](https://vercel.com) → **Add New Project**.
+2. Import the same repo and set the **Root Directory** to `frontend`.
+3. Add the following **Environment Variable**:
+
+   | Variable       | Value |
+   |----------------|-------|
+   | `VITE_API_URL` | Your backend Vercel URL from the step above |
+
+4. Click **Deploy**.
+5. Copy the frontend URL and go **back to the backend project** → Settings → Environment Variables → update `FRONTEND_URL` → **Redeploy** the backend.
+
+> **Tip:** Vercel auto-detects Vite for the frontend — no custom build command needed.
+
+---
+
+## 🔒 Security Notes
+
+- **Never commit `.env` files** — they are listed in `.gitignore`.
+- Use a strong, random `JWT_SECRET` (e.g. `openssl rand -hex 32`).
+- Passwords are stored in plain text in this demo — for production, hash them with **bcrypt**.
+- JWT tokens expire in 1 hour.
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome! For major changes, please open an issue first to discuss what you'd like to change.
+
+---
+
+## 📄 License
+
+[MIT](https://choosealicense.com/licenses/mit/)
