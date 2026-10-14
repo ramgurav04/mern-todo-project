@@ -10,6 +10,7 @@ import t_router from "./routes/taskroutes.js";
 const app = express();
 
 app.use(express.json());
+
 const allowedOrigins = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(",").map((o) => o.trim())
   : ["http://localhost:5173", "http://localhost:3000"];
@@ -19,15 +20,17 @@ app.use(cors({
   credentials: true
 }));
 
-
-
 const JWT_SECRET = process.env.JWT_SECRET || "secretkey123";
 
-// Mount all routes from t_router at the root level
-app.use("/", t_router);
+// All API routes are mounted under /api so Vercel can route
+// /api/(.*) → this service without stripping the prefix.
+const apiRouter = express.Router();
+
+// Mount sub-routes (signup, add-task)
+apiRouter.use("/", t_router);
 
 // Login route
-app.post("/login", async (req, res) => {
+apiRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -50,8 +53,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
-app.get("/tasks", verifyToken, async (req, res) => {
+apiRouter.get("/tasks", verifyToken, async (req, res) => {
   try {
     const db = await connection();
     const collection = db.collection(CollectionName);
@@ -66,7 +68,7 @@ app.get("/tasks", verifyToken, async (req, res) => {
   }
 });
 
-app.get("/task/:id", verifyToken, async (req, res) => {
+apiRouter.get("/task/:id", verifyToken, async (req, res) => {
   try {
     if (!ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ success: false, message: "Invalid task ID" });
@@ -87,7 +89,7 @@ app.get("/task/:id", verifyToken, async (req, res) => {
   }
 });
 
-app.put("/update/:id", verifyToken, async (req, res) => {
+apiRouter.put("/update/:id", verifyToken, async (req, res) => {
   try {
     if (!ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ success: false, message: "Invalid task ID" });
@@ -109,7 +111,7 @@ app.put("/update/:id", verifyToken, async (req, res) => {
   }
 });
 
-app.delete("/tasks/:id", verifyToken, async (req, res) => {
+apiRouter.delete("/tasks/:id", verifyToken, async (req, res) => {
   try {
     if (!ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ success: false, message: "Invalid task ID" });
@@ -127,8 +129,7 @@ app.delete("/tasks/:id", verifyToken, async (req, res) => {
   }
 });
 
-
-app.post("/delete-tasks", verifyToken, async (req, res) => {
+apiRouter.post("/delete-tasks", verifyToken, async (req, res) => {
   try {
     const { ids } = req.body;
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
@@ -148,6 +149,8 @@ app.post("/delete-tasks", verifyToken, async (req, res) => {
   }
 });
 
+// Mount everything under /api — Vercel forwards the full path including the prefix
+app.use("/api", apiRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

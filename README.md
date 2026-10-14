@@ -158,39 +158,56 @@ Frontend runs at **http://localhost:5173**
 
 ---
 
-## ☁️ Deploy to Vercel
+## ☁️ Deploy to Vercel (Multi-Service — One Project, One Domain)
 
-This app is split into two independent Vercel projects.
+This repo uses **Vercel Services** — both `frontend` and `backend` deploy as a **single Vercel project** sharing one domain. Vercel routes `/api/*` requests to Express and everything else to the Vite SPA.
 
-### Deploy the Backend
+### 1. Push to GitHub
 
-1. Push the repo to GitHub.
-2. Go to [vercel.com](https://vercel.com) → **Add New Project**.
-3. Import your repo and set the **Root Directory** to `backend`.
-4. Add the following **Environment Variables** in the Vercel dashboard:
+```bash
+git add .
+git commit -m "feat: add Vercel multi-service config"
+git push
+```
 
-   | Variable       | Value |
-   |----------------|-------|
-   | `DB_URL`       | Your MongoDB Atlas connection string |
-   | `JWT_SECRET`   | A long random secret string |
-   | `FRONTEND_URL` | Your frontend Vercel URL (set after deploying frontend) |
+### 2. Import into Vercel
 
-5. Click **Deploy**. Note the deployed URL (e.g. `https://mern-todo-backend.vercel.app`).
+1. Go to [vercel.com](https://vercel.com) → **Add New Project** → import your repo.
+2. Leave **Root Directory** as the repo root (where `vercel.json` lives).
+3. Vercel will auto-detect the services from `vercel.json`.
 
-### Deploy the Frontend
+### 3. Set Environment Variables
 
-1. Go to [vercel.com](https://vercel.com) → **Add New Project**.
-2. Import the same repo and set the **Root Directory** to `frontend`.
-3. Add the following **Environment Variable**:
+In the Vercel project → **Settings → Environment Variables**, add:
 
-   | Variable       | Value |
-   |----------------|-------|
-   | `VITE_API_URL` | Your backend Vercel URL from the step above |
+| Variable     | Value | Notes |
+|--------------|-------|-------|
+| `DB_URL`     | Your MongoDB Atlas connection string | Backend only |
+| `JWT_SECRET` | A long random secret | Backend only |
 
-4. Click **Deploy**.
-5. Copy the frontend URL and go **back to the backend project** → Settings → Environment Variables → update `FRONTEND_URL` → **Redeploy** the backend.
+> `VITE_API_URL` does **not** need to be set in production — the frontend defaults to the relative path `/api` (same domain).
+> `FRONTEND_URL` does **not** need to be set for the multi-service deploy — both services share one origin so CORS is same-origin.
 
-> **Tip:** Vercel auto-detects Vite for the frontend — no custom build command needed.
+### 4. Deploy
+
+Click **Deploy**. That's it — one URL serves both the React app and the API.
+
+```
+https://your-app.vercel.app/          → React SPA (frontend service)
+https://your-app.vercel.app/api/...   → Express API (backend service)
+```
+
+### Local Development
+
+Run services independently:
+
+```bash
+# Terminal 1 — backend
+cd backend && npm run dev     # http://localhost:3000/api/...
+
+# Terminal 2 — frontend
+cd frontend && npm run dev    # http://localhost:5173 (calls localhost:3000/api via VITE_API_URL)
+```
 
 ---
 
