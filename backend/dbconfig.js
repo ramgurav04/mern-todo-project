@@ -7,7 +7,8 @@ export const CollectionName = "tasks";
 const db_name = "mern";
 
 export const client = new MongoClient(url, {
-  serverSelectionTimeoutMS: 10_000,
+  serverSelectionTimeoutMS: 30_000,
+  family: 4, // Force IPv4 to fix DNS SRV lookup failures on Windows
 });
 
 let dbInstance = null;

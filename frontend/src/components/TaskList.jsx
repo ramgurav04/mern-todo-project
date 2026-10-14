@@ -25,7 +25,6 @@ const TaskList = () => {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     getListData();
   }, [getListData]);
 
